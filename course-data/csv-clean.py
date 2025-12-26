@@ -7,29 +7,29 @@ with open("Golf Courses-USA.csv", newline="", encoding="utf-8") as infile, \
     reader = csv.reader(infile)
     writer = csv.writer(outfile)
 
+    # Output header (id first)
     writer.writerow([
+        "id",
         "name",
         "city",
         "state",
-        "address",
-        "latitude",
-        "longitude",
         "holes",
-        "access",
-        "phone"
+        "access"
     ])
 
     skipped = 0
+    written = 0
+    current_id = 1
 
     for row in reader:
-        # Defensive: skip malformed rows
+        # Expect exactly 4 columns
         if len(row) != 4:
             skipped += 1
             continue
 
-        lon, lat, name_city_state, details = row
+        _, _, name_city_state, details = row
 
-        # Must contain "-" and ","
+        # Must have "Name-City,ST" structure
         if "-" not in name_city_state or "," not in name_city_state:
             skipped += 1
             continue
@@ -41,24 +41,21 @@ with open("Golf Courses-USA.csv", newline="", encoding="utf-8") as infile, \
             skipped += 1
             continue
 
-        holes = re.search(r"\((\d+)\s+Holes\)", details)
-        access = re.search(r"\((Public|Municipal|Private)\)", details)
-        phone = re.search(r"(\(\d{3}\)\s*\d{3}-\d{4})", details)
-
-        address = re.sub(r"\(.*?\),", "", details)
-        address = re.sub(r",\s*\(\d{3}.*", "", address).strip()
+        holes_match = re.search(r"\((\d+)\s+Holes\)", details)
+        access_match = re.search(r"\((Public|Municipal|Private)\)", details)
 
         writer.writerow([
+            current_id,
             name.strip(),
             city.strip(),
             state.strip(),
-            address,
-            lat.strip(),
-            lon.strip(),
-            holes.group(1) if holes else "",
-            access.group(1) if access else "",
-            phone.group(1) if phone else "",
+            int(holes_match.group(1)) if holes_match else "",
+            access_match.group(1) if access_match else "",
         ])
 
-print(f"Cleaned CSV written to golf_courses_clean.csv")
-print(f"Skipped {skipped} malformed rows")
+        current_id += 1
+        written += 1
+
+print("Cleaned CSV written to golf_courses_clean.csv")
+print(f"Rows written: {written}")
+print(f"Rows skipped: {skipped}")
