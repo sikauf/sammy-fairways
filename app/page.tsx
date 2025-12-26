@@ -1,5 +1,6 @@
 import TestInsertButton from "@/components/test-insert-button";
 import TestRemoveButton from "@/components/test-remove-button";
+import CourseSearch from "@/components/course-search";
 
 import { createClient } from "@/lib/supabase/server";
 import { Suspense } from "react";
@@ -75,6 +76,7 @@ export default function Home() {
               </div>
             }
           >
+            <CourseSearch />
             <CoursesData />
             <TestInsertButton />
             <TestRemoveButton />
