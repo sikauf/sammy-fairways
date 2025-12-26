@@ -11,7 +11,7 @@ const supabase = createClient<Database>(
 export async function testRemoveCourse() {
   // Find the most recently inserted "Test Course"
   const { data: rows, error: findError } = await supabase
-    .from("Courses")
+    .from("courses")
     .select("id")
     .eq("name", "Test Course")
     .order("id", { ascending: false })
@@ -26,7 +26,7 @@ export async function testRemoveCourse() {
 
   // Delete it
   const { error: deleteError } = await supabase
-    .from("Courses")
+    .from("courses")
     .delete()
     .eq("id", id);
 

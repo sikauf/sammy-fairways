@@ -14,28 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
-      Courses: {
+      course_list: {
         Row: {
+          access: string | null
           city: string | null
+          holes: number | null
+          id: number
+          name: string | null
+          state: string | null
+        }
+        Insert: {
+          access?: string | null
+          city?: string | null
+          holes?: number | null
+          id: number
+          name?: string | null
+          state?: string | null
+        }
+        Update: {
+          access?: string | null
+          city?: string | null
+          holes?: number | null
+          id?: number
+          name?: string | null
+          state?: string | null
+        }
+        Relationships: []
+      }
+      courses: {
+        Row: {
+          access: string | null
+          city: string | null
+          course_list_id: number | null
+          holes: number | null
           id: number
           name: string
           state: string | null
         }
         Insert: {
+          access?: string | null
           city?: string | null
+          course_list_id?: number | null
+          holes?: number | null
           id?: number
           name: string
           state?: string | null
         }
         Update: {
+          access?: string | null
           city?: string | null
+          course_list_id?: number | null
+          holes?: number | null
           id?: number
           name?: string
           state?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "Courses_course_list_id_fkey"
+            columns: ["course_list_id"]
+            isOneToOne: false
+            referencedRelation: "course_list"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      Rounds: {
+      rounds: {
         Row: {
           date: string
           id: number

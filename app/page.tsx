@@ -8,7 +8,7 @@ import { Suspense } from "react";
 async function CoursesData() {
   const supabase = await createClient();
   const { data: courses, error } = await supabase
-    .from("Courses")
+    .from("courses")
     .select("id, name, city, state")
     .order("name", { ascending: true });
 

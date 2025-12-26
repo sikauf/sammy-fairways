@@ -10,7 +10,7 @@ const supabase = createClient<Database>(
 
 export async function testInsertCourse() {
   const { error } = await supabase
-    .from("Courses")
+    .from("courses")
     .insert({
       name: "Test Course",
       city: "Test City",

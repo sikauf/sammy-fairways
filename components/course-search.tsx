@@ -1,19 +1,26 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { searchCourses, type CourseSearchResult } from "@/app/actions/search-courses";
+import { saveCourseFromList } from "@/app/actions/save-course";
 
 export default function CourseSearch() {
+  const router = useRouter();
+
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<CourseSearchResult[]>([]);
-  const [pending, startTransition] = useTransition();
+  const [pendingSearch, startSearch] = useTransition();
+  const [pendingSave, startSave] = useTransition();
 
-  // tiny debounce so it doesn't fire on every keystroke instantly
+  // Debounced search
   useEffect(() => {
+    const q = query.trim();
+
     const t = setTimeout(() => {
-      startTransition(async () => {
+      startSearch(async () => {
         try {
-          const rows = await searchCourses(query);
+          const rows = await searchCourses(q);
           setResults(rows);
         } catch (e) {
           console.error(e);
@@ -35,24 +42,52 @@ export default function CourseSearch() {
           placeholder='Try "Pebble", "Ann Arbor", or "MI"...'
           className="border rounded-md px-3 py-2 text-sm"
         />
+
         <div className="text-xs text-muted-foreground">
-          {pending ? "Searching..." : query.trim() ? `${results.length} results` : "Type to search"}
+          {pendingSearch
+            ? "Searching..."
+            : query.trim()
+              ? `${results.length} result${results.length === 1 ? "" : "s"}`
+              : "Type to search"}
         </div>
       </div>
 
-      {query.trim() && results.length === 0 && !pending && (
+      {query.trim() && results.length === 0 && !pendingSearch && (
         <p className="text-sm text-muted-foreground italic">No matches found.</p>
       )}
 
       <ul className="flex flex-col gap-2">
         {results.map((c) => (
-          <li key={c.id} className="border rounded-lg p-4">
-            <div className="font-medium">{c.name}</div>
-            <div className="text-sm text-muted-foreground">
-              {[c.city, c.state].filter(Boolean).join(", ") || "Location unknown"}
-              {c.holes ? ` • ${c.holes} holes` : ""}
-              {c.access ? ` • ${c.access}` : ""}
+          <li
+            key={c.id}
+            className="border rounded-lg p-4 flex items-center justify-between gap-4"
+          >
+            <div className="min-w-0">
+              <div className="font-medium truncate">{c.name}</div>
+              <div className="text-sm text-muted-foreground truncate">
+                {[c.city, c.state].filter(Boolean).join(", ") || "Location unknown"}
+              </div>
             </div>
+
+            <button
+              type="button"
+              disabled={pendingSave}
+              className="px-3 py-2 rounded-md border text-sm font-medium whitespace-nowrap"
+              onClick={() => {
+                startSave(async () => {
+                  try {
+                    await saveCourseFromList(c.id);
+                    alert("Added to your courses!");
+                    router.refresh();
+                  } catch (e: any) {
+                    console.error(e);
+                    alert(e?.message ?? "Failed to add course");
+                  }
+                });
+              }}
+            >
+              {pendingSave ? "Adding..." : "Select"}
+            </button>
           </li>
         ))}
       </ul>
