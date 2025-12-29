@@ -1,3 +1,4 @@
+# This was written by chat as a placeholder so take with grain of salt
 # 🏌️ Golf Courses & Rounds Tracker
 
 A personal (and eventually multi-user) golf tracking web app that lets users store golf courses they’ve played, track individual rounds, and attach photos to each course.
@@ -50,7 +51,7 @@ Built with **Next.js (App Router)**, **Supabase**, and **TypeScript**.
 
 ---
 
-## 🗃 Database Schema
+## 🗃 Database Schema (Not true at all right now just a place holder)
 
 ### courses
 | Column | Type |
