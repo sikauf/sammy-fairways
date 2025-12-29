@@ -13,5 +13,5 @@ export async function GET(request: Request) {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ?? `${url.protocol}//${url.host}`;
 
-  return NextResponse.redirect(new URL("/protected", siteUrl));
+  return NextResponse.redirect(new URL("/", siteUrl));
 }
