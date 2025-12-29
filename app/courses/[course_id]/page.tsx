@@ -6,60 +6,49 @@ import HomeButton from "@/components/back-to-home";
 export default async function CoursePage({
   params,
 }: {
-  params: Promise<{ course_id: string }>;
+  params: { course_id: string };
 }) {
-  // ✅ wait for params
-  const { course_id } = await params;
-
-  const course_id_number = Number(course_id);
-  if (!Number.isFinite(course_id_number)) return notFound();
+  const courseId = Number(params.course_id);
+  if (!Number.isFinite(courseId)) return notFound();
 
   const supabase = await createClient();
 
+  // Get course name
+  const { data: course, error: courseErr } = await supabase
+    .from("courses")
+    .select("name")
+    .eq("id", courseId)
+    .single();
+
+  if (courseErr) throw new Error(courseErr.message);
+  if (!course) throw new Error("No course found");
+
+  const folder = `course_${courseId}`;
+
   // List all images in this course's folder
-  const { data: files, error } = await supabase.storage
+  const { data: files, error: listErr } = await supabase.storage
     .from("course_images")
-    .list(`course_${course_id}`, {
+    .list(folder, {
       limit: 100,
       sortBy: { column: "created_at", order: "desc" },
     });
 
-    const { data } = await supabase
-  .from("courses")
-  .select("name")
-  .eq("id", course_id_number)
-  .single();
-
-    if (!data) {
-    throw new Error("No course found");
-    }
-
-    const course_name = data.name;
-
-
-  if (error) {
-    console.error(error);
-  }
+  if (listErr) console.error(listErr);
 
   const images =
-    files?.map((file) =>
-      supabase.storage
-        .from("course_images")
-        .getPublicUrl(`course_${course_id}/${file.name}`).data.publicUrl
+    files?.map(
+      (file) =>
+        supabase.storage
+          .from("course_images")
+          .getPublicUrl(`${folder}/${file.name}`).data.publicUrl
     ) ?? [];
-
 
   return (
     <main style={{ padding: 24 }}>
-     <h1 className="text-4xl font-extrabold">
-        {course_name}
-     </h1>
+      <h1 className="text-4xl font-extrabold">{course.name}</h1>
 
+      <CourseImageUploader courseId={courseId} />
 
-      {/* Upload UI (only exists on this route) */}
-      <CourseImageUploader courseId={course_id_number} />
-
-      {/* Image gallery */}
       <section style={{ marginTop: 24 }}>
         <h2>Course Images</h2>
 
@@ -90,11 +79,9 @@ export default async function CoursePage({
         </div>
       </section>
 
-
-        <section className="p-6">
-            <HomeButton />
-        </section>
-
+      <section className="p-6">
+        <HomeButton />
+      </section>
     </main>
   );
 }
