@@ -8,6 +8,9 @@ Built with **Next.js (App Router)**, **Supabase**, and **TypeScript**.
 
 ---
 
+# Steps to merge
+ - supabase db dump --schema public > schema.sql
+
 ## 🚀 Features
 
 - **Course Pages**
