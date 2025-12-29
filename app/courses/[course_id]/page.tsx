@@ -4,35 +4,54 @@ import { notFound } from "next/navigation";
 export default async function CoursePage({
   params,
 }: {
-  params: { courseId: string };
+  params: Promise<{ course_id: string }>;
 }) {
+  // ✅ wait for params
+  const { course_id } = await params;
+
+  const course_id_number = Number(course_id);
+  if (!Number.isFinite(course_id_number)) return notFound();
+
   const supabase = await createClient();
 
-  const { data: course } = await supabase
+  const { data: course, error } = await supabase
     .from("courses")
-    .select("*")
-    .eq("id", params.courseId)
+    .select("id, name")
+    .eq("id", course_id_number)
     .single();
 
-  if (!course) return notFound();
+  if (error || !course) return notFound();
+
+  // fetch saved text for this course
+    const { data: text_row, error: text_error } = await supabase
+    .from("test_text")
+    .select("text")
+    .eq("course_id", course_id_number)
+    .order("id", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+    const saved_text = text_row?.text ?? "";
+
 
   return (
-    <main className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">{course.name}</h1>
-      <p className="opacity-70">
-        {course.city}, {course.state}
-      </p>
+    <main className="p-6 text-white">
+      <h1 className="text-2xl font-semibold">
+        Course ID: {course.id}
+      </h1>
+      <p className="mt-2">Name: {course.name}</p>
 
-      {/* This is where “store information” happens */}
-      <section>
-        <h2 className="text-xl font-medium">Rounds</h2>
-        {/* rounds go here */}
-      </section>
+        {saved_text && (
+    <section className="border border-white/15 rounded-lg p-4 bg-white/10">
+        <h2 className="text-sm font-semibold opacity-70 mb-2">
+        Saved Text
+        </h2>
+        <p className="whitespace-pre-wrap text-white">
+        {saved_text}
+        </p>
+    </section>
+    )}
 
-      <section>
-        <h2 className="text-xl font-medium">Photos</h2>
-        {/* course_images go here */}
-      </section>
     </main>
   );
 }

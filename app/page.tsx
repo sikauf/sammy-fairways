@@ -1,5 +1,7 @@
 import CourseSearch from "@/components/course-search";
 import RemoveCourseButton from "@/components/remove-course-button";
+import Link from "next/link";
+
 import { LoginForm } from "@/components/login-form";
 import { createClient } from "@/lib/supabase/server";
 import { Suspense } from "react";
@@ -33,9 +35,14 @@ async function CoursesData() {
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h3 className="font-semibold text-lg truncate text-white">
+              <h3 className="font-semibold text-lg truncate">
+              <Link
+                href={`/courses/${course.id}`}
+                className="text-white hover:underline focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
+                >
                 {course.name}
-              </h3>
+              </Link>
+             </h3>
               <p className="text-sm text-white/80">
                 {[course.city, course.state].filter(Boolean).join(", ") ||
                   "Location unknown"}
