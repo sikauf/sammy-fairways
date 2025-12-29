@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
+import CourseImageUploader from "@/components/course-image-uploader";
 
 export default async function CoursePage({
   params,
@@ -14,44 +15,79 @@ export default async function CoursePage({
 
   const supabase = await createClient();
 
-  const { data: course, error } = await supabase
-    .from("courses")
-    .select("id, name")
-    .eq("id", course_id_number)
-    .single();
+  // List all images in this course's folder
+  const { data: files, error } = await supabase.storage
+    .from("course_images")
+    .list(`course_${course_id}`, {
+      limit: 100,
+      sortBy: { column: "created_at", order: "desc" },
+    });
 
-  if (error || !course) return notFound();
+    const { data } = await supabase
+  .from("courses")
+  .select("name")
+  .eq("id", course_id_number)
+  .single();
 
-  // fetch saved text for this course
-    const { data: text_row, error: text_error } = await supabase
-    .from("test_text")
-    .select("text")
-    .eq("course_id", course_id_number)
-    .order("id", { ascending: true })
-    .limit(1)
-    .maybeSingle();
+    if (!data) {
+    throw new Error("No course found");
+    }
 
-    const saved_text = text_row?.text ?? "";
+    const course_name = data.name;
+
+
+  if (error) {
+    console.error(error);
+  }
+
+  const images =
+    files?.map((file) =>
+      supabase.storage
+        .from("course_images")
+        .getPublicUrl(`course_${course_id}/${file.name}`).data.publicUrl
+    ) ?? [];
 
 
   return (
-    <main className="p-6 text-white">
-      <h1 className="text-2xl font-semibold">
-        Course ID: {course.id}
-      </h1>
-      <p className="mt-2">Name: {course.name}</p>
+    <main style={{ padding: 24 }}>
+     <h1 className="text-4xl font-extrabold">
+        {course_name}
+     </h1>
 
-        {saved_text && (
-    <section className="border border-white/15 rounded-lg p-4 bg-white/10">
-        <h2 className="text-sm font-semibold opacity-70 mb-2">
-        Saved Text
-        </h2>
-        <p className="whitespace-pre-wrap text-white">
-        {saved_text}
-        </p>
-    </section>
-    )}
 
+      {/* Upload UI (only exists on this route) */}
+      <CourseImageUploader courseId={course_id_number} />
+
+      {/* Image gallery */}
+      <section style={{ marginTop: 24 }}>
+        <h2>Course Images</h2>
+
+        {images.length === 0 && <p>No images yet.</p>}
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+            gap: 12,
+            marginTop: 12,
+          }}
+        >
+          {images.map((src) => (
+            <img
+              key={src}
+              src={src}
+              alt="Course"
+              style={{
+                width: "100%",
+                height: 160,
+                objectFit: "cover",
+                borderRadius: 12,
+                border: "1px solid #e5e5e5",
+              }}
+            />
+          ))}
+        </div>
+      </section>
     </main>
   );
 }
