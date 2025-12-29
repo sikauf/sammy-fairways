@@ -14,7 +14,7 @@ export default function RemoveCourseButton({ courseId }: { courseId: number }) {
       disabled={pending}
       className="px-3 py-1.5 rounded-md border text-sm font-medium hover:bg-muted transition"
       onClick={() => {
-        const ok = confirm("Remove this course?");
+        const ok = confirm("Warning: This will permanently delete the course and all its images. Continue?");
         if (!ok) return;
 
         startTransition(async () => {
