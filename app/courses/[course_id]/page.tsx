@@ -6,10 +6,14 @@ import HomeButton from "@/components/back-to-home";
 export default async function CoursePage({
   params,
 }: {
-  params: { course_id: string };
+  params: Promise<{ course_id: string }>;
 }) {
-  const courseId = Number(params.course_id);
-  if (!Number.isFinite(courseId)) return notFound();
+  const { course_id } = await params; // ✅ REQUIRED
+  const courseId = Number(course_id);
+
+  if (!Number.isFinite(courseId)) {
+    notFound();
+  }
 
   const supabase = await createClient();
 
