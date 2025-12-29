@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import CourseImageUploader from "@/components/course-image-uploader";
+import HomeButton from "@/components/back-to-home";
 
 export default async function CoursePage({
   params,
@@ -88,6 +89,12 @@ export default async function CoursePage({
           ))}
         </div>
       </section>
+
+
+        <section className="p-6">
+            <HomeButton />
+        </section>
+
     </main>
   );
 }
