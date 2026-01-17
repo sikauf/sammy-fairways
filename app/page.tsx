@@ -95,7 +95,7 @@ async function AuthedHome() {
               Sammy Fairways ⛳️
             </h1>
             <p className="text-white/80 max-w-xl">
-              A personal log of golf courses I’ve played TEST.
+              A personal log of golf courses I’ve played.
             </p>
           </header>
 
