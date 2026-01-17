@@ -16,8 +16,6 @@ export default function CoursePageClient({ courseId }: { courseId: number }) {
 
   const [images, setImages] = useState<string[]>([]);
 
-  const folder = `course_${courseId}`;
-
   async function load() {
     setStatus("loading");
     setError(null);
@@ -41,29 +39,29 @@ export default function CoursePageClient({ courseId }: { courseId: number }) {
     }
     setCourseName(course.name);
 
-    // 2) list images
-    const { data: files, error: listErr } = await supabase.storage
+    // 2) load image rows from course_images table (table-backed ✅)
+    const { data: rows, error: rowsErr } = await supabase
       .from("course_images")
-      .list(folder, {
-        limit: 100,
-        sortBy: { column: "created_at", order: "desc" },
-      });
+      .select("path, created_at")
+      .eq("course_id", courseId)
+      .order("created_at", { ascending: false });
 
-    if (listErr) {
-      // Don’t hard-fail the whole page if listing fails—just show none.
-      console.error(listErr);
+    if (rowsErr) {
+      console.error(rowsErr);
       setImages([]);
       setStatus("ready");
       return;
     }
 
     const urls =
-      files?.map(
-        (file) =>
-          supabase.storage
-            .from("course_images")
-            .getPublicUrl(`${folder}/${file.name}`).data.publicUrl
-      ) ?? [];
+      rows
+        ?.map((r) => r.path)
+        .filter((p): p is string => typeof p === "string" && p.length > 0)
+        .map(
+          (path) =>
+            supabase.storage.from("course_images").getPublicUrl(path).data
+              .publicUrl
+        ) ?? [];
 
     setImages(urls);
     setStatus("ready");
@@ -91,7 +89,7 @@ export default function CoursePageClient({ courseId }: { courseId: number }) {
     <>
       <h1 className="text-4xl font-extrabold">{courseName}</h1>
 
-      {/* uploader stays the same */}
+      {/* uploader */}
       <CourseImageUploader courseId={courseId} />
 
       <section style={{ marginTop: 24 }}>
