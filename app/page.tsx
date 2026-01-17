@@ -64,7 +64,9 @@ async function CoursesData() {
 // ✅ Auth gate runs inside Suspense, so cookies() access is allowed
 async function AuthedHome() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return (
@@ -75,45 +77,53 @@ async function AuthedHome() {
       </div>
     );
   }
-  <AuthDebug />
+
   return (
-    <div className="min-h-screen w-full bg-black/50">
-      <div className="w-full max-w-5xl px-6 py-12 flex flex-col gap-10 mx-auto">
-        <header className="flex flex-col gap-2">
-          <h1 className="text-4xl font-bold tracking-tight text-white">
-            Sammy Fairways ⛳️
-          </h1>
-          <p className="text-white/80 max-w-xl">
-            A personal log of golf courses I’ve played.
-          </p>
-        </header>
+    <>
+      <AuthDebug />
 
-        <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-semibold text-white">Add a Course</h2>
-          <div className="rounded-xl bg-white/10 backdrop-blur border border-white/15 p-4">
-            <CourseSearch />
-          </div>
-        </section>
+      <div className="min-h-screen w-full bg-black/50">
+        <div className="w-full max-w-5xl px-6 py-12 flex flex-col gap-10 mx-auto">
+          <header className="flex flex-col gap-2">
+            <h1 className="text-4xl font-bold tracking-tight text-white">
+              Sammy Fairways ⛳️
+            </h1>
+            <p className="text-white/80 max-w-xl">
+              A personal log of golf courses I’ve played.
+            </p>
+          </header>
 
-        <section className="flex flex-col gap-4">
-          <h2 className="text-xl font-semibold text-white">Courses Played</h2>
+          <section className="flex flex-col gap-4">
+            <h2 className="text-xl font-semibold text-white">Add a Course</h2>
+            <div className="rounded-xl bg-white/10 backdrop-blur border border-white/15 p-4">
+              <CourseSearch />
+            </div>
+          </section>
 
-          <Suspense
-            fallback={
-              <div className="grid gap-4 sm:grid-cols-2">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="h-28 rounded-xl bg-white/10 animate-pulse" />
-                ))}
-              </div>
-            }
-          >
-            <CoursesData />
-          </Suspense>
-        </section>
+          <section className="flex flex-col gap-4">
+            <h2 className="text-xl font-semibold text-white">Courses Played</h2>
+
+            <Suspense
+              fallback={
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-28 rounded-xl bg-white/10 animate-pulse"
+                    />
+                  ))}
+                </div>
+              }
+            >
+              <CoursesData />
+            </Suspense>
+          </section>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
+
 
 
 
