@@ -20,21 +20,23 @@ export function LoginForm({
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGoogleLogin = async () => {
-    const supabase = createClient();
     setIsLoading(true);
     setError(null);
+
+    const supabase = createClient();
 
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=/`,
+          // 👇 THIS is the critical fix for PR deployments
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
 
       if (error) throw error;
-      // success redirects to Google
-    } catch (err: unknown) {
+      // success → browser redirects to Google
+    } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setIsLoading(false);
     }

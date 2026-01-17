@@ -10,8 +10,7 @@ export async function GET(request: Request) {
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ?? `${url.protocol}//${url.host}`;
-
-  return NextResponse.redirect(new URL("/", siteUrl));
+  // Always redirect back to the same origin that handled the callback
+  // (localhost, PR preview, or production)
+  return NextResponse.redirect(new URL("/", url.origin));
 }
