@@ -9,10 +9,18 @@ import { Suspense } from "react";
 
 async function CoursesData() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return <p className="text-white/80 italic">Please log in to view courses.</p>;
+  }
 
   const { data: courses, error } = await supabase
     .from("courses")
     .select("id, name, city, state, holes, access")
+    .eq("user_id", user.id)
     .order("name", { ascending: true });
 
   if (error) {
@@ -37,13 +45,13 @@ async function CoursesData() {
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <h3 className="font-semibold text-lg truncate">
-              <Link
-                href={`/courses/${course.id}`}
-                className="text-white hover:underline focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
+                <Link
+                  href={`/courses/${course.id}`}
+                  className="text-white hover:underline focus:outline-none focus:ring-2 focus:ring-white/50 rounded"
                 >
-                {course.name}
-              </Link>
-             </h3>
+                  {course.name}
+                </Link>
+              </h3>
               <p className="text-sm text-white/80">
                 {[course.city, course.state].filter(Boolean).join(", ") ||
                   "Location unknown"}
@@ -59,6 +67,7 @@ async function CoursesData() {
     </ul>
   );
 }
+
 
 // ✅ Auth gate runs inside Suspense, so cookies() access is allowed
 async function AuthedHome() {
