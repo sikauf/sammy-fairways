@@ -1,7 +1,6 @@
 import CourseSearch from "@/components/course-search";
 import RemoveCourseButton from "@/components/remove-course-button";
 import Link from "next/link";
-import AuthDebug from "@/components/auth-debug";
 
 
 import { LoginForm } from "@/components/login-form";
@@ -80,8 +79,6 @@ async function AuthedHome() {
 
   return (
     <>
-      <AuthDebug />
-
       <div className="min-h-screen w-full bg-black/50">
         <div className="w-full max-w-5xl px-6 py-12 flex flex-col gap-10 mx-auto">
           <header className="flex flex-col gap-2">
